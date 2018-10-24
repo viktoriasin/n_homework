@@ -26,11 +26,11 @@ INSERT INTO FILMES(TITLE, ID, COUNTRY, BOX_OFFICE, RELEASE_YEAR) VALUES
 ('Van Helsing',5,'USA',120177084,'2004-05-03');
 
 INSERT INTO PERSONS(ID, FIO) VALUES 
-(1,'Brad Pitt'),ACTOR
-(2,'Gary Oldman'),ACTOR
-(3,'George Clooney'),ACTOR
-(4,'F.W. Murnau'),PROD
-(5,'Allan Cameron'); ХУДОЖНИК
+(1,'Brad Pitt'),
+(2,'Gary Oldman'),
+(3,'George Clooney'),
+(4,'F.W. Murnau'),
+(5,'Allan Cameron');
 
 INSERT INTO PERSONS2CONTENT VALUES 
 (1,1,'ACTOR'),

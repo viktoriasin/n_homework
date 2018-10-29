@@ -32,7 +32,7 @@ CREATE TABLE keywords (
 \copy keywords from '/data/keywords.csv' DELIMITER ',' CSV HEADER;
 
 --LOAD
- --ver 1
+ --version 1
  WITH top_rated as (
 select distinct r.movieid
 , hlp.avg_rating 
@@ -43,10 +43,11 @@ join (select count(distinct userid) cnt
 from public.ratings
  group by movieid 
  having count(distinct userid) > 50 
- limit 150) hlp 
+ ) hlp 
  on r.movieid = hlp.movieid 
  order by hlp.avg_rating desc
  , movieid asc
+ limit 150
  )
  SELECT TR.MOVIEID, TAGS INTO top_rated_tags
  FROM  top_rated TR
@@ -54,7 +55,7 @@ from public.ratings
  ON TG.MOVIEID = TR.MOVIEID;
 
 
---ver 2
+--version 2
 WITH top_rated as (
  select h.movieid, h.avg_rating from 
  (select count(distinct userid) cnt
@@ -63,9 +64,10 @@ WITH top_rated as (
  from public.RATINGS
  group by movieid
  having count(distinct userid) > 50
- limit 150) h
+ ) h
  order by avg_rating desc
  , movieid ASC
+ limit 150
 )
 
  SELECT TR.MOVIEID, TAGS INTO top_rated_tags
@@ -75,4 +77,4 @@ WITH top_rated as (
 
 
 
- \copy (SELECT * FROM top_rated_tags LIMIT 100) TO 'top_ratings_file.csv' WITH CSV HEADER DELIMETER as E'\t';
+ \copy (SELECT * FROM top_rated_tags LIMIT 100) TO 'top_ratings_file.csv' WITH CSV HEADER DELIMITER as E'\t';

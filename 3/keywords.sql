@@ -33,10 +33,11 @@ join (select count(distinct userid) cnt
 from public.ratings
  group by movieid 
  having count(distinct userid) > 50 
- limit 150) hlp 
+ ) hlp 
  on r.movieid = hlp.movieid 
  order by hlp.avg_rating desc
  , movieid asc
+ limit 150
  )
  SELECT TR.MOVIEID, TAGS INTO top_rated_tags
  FROM  top_rated TR
@@ -53,9 +54,10 @@ WITH top_rated as (
  from public.RATINGS
  group by movieid
  having count(distinct userid) > 50
- limit 150) h
+ ) h
  order by avg_rating desc
  , movieid ASC
+ limit 150
 )
 
  SELECT TR.MOVIEID, TAGS INTO top_rated_tags
@@ -65,4 +67,4 @@ WITH top_rated as (
 
 
 
- \copy (SELECT * FROM top_rated_tags LIMIT 100) TO 'top_ratings_file.csv' WITH CSV HEADER DELIMETER as E'\t';
+\copy (SELECT * FROM top_rated_tags LIMIT 100) TO 'top_ratings_file.csv' WITH CSV HEADER DELIMITER as E'\t';

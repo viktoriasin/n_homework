@@ -77,4 +77,4 @@ WITH top_rated as (
 
 
 
- \copy (SELECT * FROM top_rated_tags LIMIT 100) TO 'top_ratings_file.csv' WITH CSV HEADER DELIMITER as E'\t';
+ \copy (SELECT * FROM top_rated_tags) TO 'top_ratings_file.csv' WITH CSV HEADER DELIMITER as E'\t';

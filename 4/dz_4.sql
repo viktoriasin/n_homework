@@ -40,3 +40,6 @@ INSERT INTO LINKS_PARTED (
     WHERE movieid IN (9,11,13)
 );
 
+SELECT * FROM links_parted_even0;
+
+SELECT * FROM links_parted_odd1;

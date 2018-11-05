@@ -31,10 +31,15 @@ WITH USERS_LINE AS (
     where u1.userid <> u2.userid
 )
 , USER_PAIRS AS (
+    select u1, u2, crossed_array, row_number() over(partition by u1 order by array_length(crossed_array, 1) desc) rnk 
+    from (
     SELECT u1, u2, cross_arr(r1::int[], r2::int[]) crossed_array
     FROM USERS_LINE 
+    ) x
+    where  array_length(crossed_array, 1) is not Null
 )
-SELECT u1, u2, crossed_array INTO common_user_views FROM user_pairs;
+SELECT u1, u2, crossed_array INTO common_user_views FROM user_pairs
+where rnk = 1;
 
 SELECT * FROM common_user_views;
 
@@ -46,3 +51,9 @@ EXCEPT
 SELECT UNNEST($2) AS ARR2
 );
 $$ language sql;
+
+
+select u_cmmn.u1, diff_arr(u_aggr.user_views::int[], u_cmmn.crossed_array::int[]) diff_array
+from user_movies_agg u_aggr
+join common_user_views u_cmmn
+on u_aggr.userid = u_cmmn.u2;

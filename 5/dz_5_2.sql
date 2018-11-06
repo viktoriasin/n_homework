@@ -1,15 +1,15 @@
 create table small_ratings as 
-SELECT * FROM ratings LIMIT 10000;
+SELECT * FROM public.ratings LIMIT 10000;
 
 
-SELECT userID, array_agg(distinct movieId) as user_views FROM small_ratings group by userid;
+SELECT userID, array_agg(distinct movieId) as user_views FROM public.small_ratings group by userid;
 
 DROP TABLE IF EXISTS user_movies_agg;
 SELECT userID, user_views INTO public.user_movies_agg FROM 
 (SELECT userID, array_agg(distinct movieId) as user_views
-FROM small_ratings group by userid);
+FROM public.small_ratings group by userid);
 
-SELECT * FROM user_movies_agg;
+SELECT * FROM public.user_movies_agg;
 
 
 CREATE OR REPLACE FUNCTION cross_arr (int[], int[]) RETURNS int[] as 
@@ -22,12 +22,12 @@ SELECT UNNEST($2) AS ARR2
 $$ language sql;
 
 select u1.userid u1, u1.user_views r1, u2.userid u2, u2.user_views r2 
-from user_movies_agg u1, user_movies_agg u2 
+from public.user_movies_agg u1, public.user_movies_agg u2 
 where u1.userid <> u2.userid;
 
 WITH USERS_LINE AS (
     select u1.userid u1, u1.user_views r1, u2.userid u2, u2.user_views r2 
-    from user_movies_agg u1, user_movies_agg u2 
+    from public.user_movies_agg u1, public.user_movies_agg u2 
     where u1.userid <> u2.userid
 )
 , USER_PAIRS AS (
@@ -38,10 +38,10 @@ WITH USERS_LINE AS (
     ) x
     where  array_length(crossed_array, 1) is not Null
 )
-SELECT u1, u2, crossed_array INTO common_user_views FROM user_pairs
+SELECT u1, u2, crossed_array INTO public.common_user_views FROM user_pairs
 where rnk <= 10;
 
-SELECT * FROM common_user_views;
+SELECT * FROM public.common_user_views;
 
 CREATE OR REPLACE FUNCTION diff_arr (int[], int[]) RETURNS int[] as 
 $$
@@ -55,8 +55,8 @@ $$ language sql;
 
 select u1, array_agg(distinct diff_array) from (
 select u_cmmn.u1, unnest(diff_arr(u_aggr.user_views::int[], u_cmmn.crossed_array::int[])) diff_array
-from user_movies_agg u_aggr
-join common_user_views u_cmmn
+from public.user_movies_agg u_aggr
+join public.common_user_views u_cmmn
 on u_aggr.userid = u_cmmn.u2
 ) src
 group by u1;

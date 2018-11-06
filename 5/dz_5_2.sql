@@ -39,7 +39,7 @@ WITH USERS_LINE AS (
     where  array_length(crossed_array, 1) is not Null
 )
 SELECT u1, u2, crossed_array INTO common_user_views FROM user_pairs
-where rnk = 1;
+where rnk <= 10;
 
 SELECT * FROM common_user_views;
 
@@ -53,7 +53,10 @@ SELECT UNNEST($2) AS ARR2
 $$ language sql;
 
 
-select u_cmmn.u1, diff_arr(u_aggr.user_views::int[], u_cmmn.crossed_array::int[]) diff_array
+select u1, array_agg(distinct diff_array) from (
+select u_cmmn.u1, unnest(diff_arr(u_aggr.user_views::int[], u_cmmn.crossed_array::int[])) diff_array
 from user_movies_agg u_aggr
 join common_user_views u_cmmn
-on u_aggr.userid = u_cmmn.u2;
+on u_aggr.userid = u_cmmn.u2
+) src
+group by u1;

@@ -1,3 +1,5 @@
+--Развернуть базу данных с использованием Docker контейнера (создать таблицы и заполнить их).Использовать бдPostgreSQL
+
 create database lab;
 
 \c  lab
@@ -9,6 +11,7 @@ name varchar(250));
 insert into department values (1, 'Therapy'), (2, 'Neurology'), (3, 'Cardiology') ,
  (4, 'Gastroenterology'),(5,'Hematology'), (6, 'Oncology');
 
+
 create table employee 
 (id integer primary key, 
 department_id integer references department (id),
@@ -18,7 +21,7 @@ num_public integer);
 
 insert into Employee values (1,1,1,'Kate',4),(2,1,1,'Lidia',2), (3,1,1,'Alexey',1),(4,1,2,'Pier',7),(5,1,2,'Aurel',6),(6,1,2,'Klaudia',1),(7,2,3,'Klaus',12),(8,2,3,'Maria',11),(9,2,4,'Kate',10),(10,3,5,'Peter',8),(11,3,5,'Sergey',9),(12,3,6,'Olga',12),(13,3,6,'Maria',14),(14,4,7,'Irina',2),(15,4,7,'Grit',10),(16,4,7,'Vanessa',16),(17,5,8,'Sasha',21),(18,5,8,'Ben',22),(19,6,9,'Jessy',19),(20,6,9,'Ann',18);
 
-
+--Вывести список названий департаментов и количество главных врачей в каждом из этих департаментов
 select dep.name,cnt.cnt_doc cnt_doc from department dep
 join (
 select count(distinct chief_doc_id) cnt_doc, department_id dep_id
@@ -26,12 +29,12 @@ from employee
 group by department_id) cnt
 on dep.id = cnt.dep_id;
 
-
+--Вывести список департамент id в которых работаю 3 и более сотрудника
 select department_id dep_id
 from employee
 having count(id) >= 3;
 
-
+--Вывести список департамент id с максимальным количеством публикаций
 select  department_id dep_id
 from employee
 group by department_id
@@ -40,10 +43,7 @@ having sum(num_public) >= all
 from employee 
 group by department_id);
 
-select  department_id, min(num_public) 
-from employee
-group by department_id
-
+--Вывести список имен сотрудников и департаментов с минимальным количеством в своем департаментe
 select * from (
 select dep.name, em.name,num_public,  rank() over(partition by department_id order by num_public) rnk
 from employee em
@@ -51,6 +51,8 @@ join department  dep
 on dep.id = em.department_id) x
 where rnk = 1;
 
+
+--Вывести список названий департаментов и среднее количество публикаций для тех департаментов, в которых работает более одного главного врача
 with dep_list as (
 select department_id dep_id
 from employee

@@ -44,8 +44,8 @@ from employee
 group by department_id);
 
 --Вывести список имен сотрудников и департаментов с минимальным количеством в своем департаментe
-select * from (
-select dep.name, em.name,num_public,  rank() over(partition by department_id order by num_public) rnk
+select dep_name, emp_name from (
+select dep.name dep_name, em.name emp_name,  rank() over(partition by department_id order by num_public) rnk
 from employee em
 join department  dep
 on dep.id = em.department_id) x
@@ -59,7 +59,7 @@ from employee
 group by department_id
 having count(distinct chief_doc_id) > 1
 )
-select round(avg(em.num_public) , 2)  avg, dep.name
+select dep.name, round(avg(em.num_public) , 2)  avg
 from dep_list 
 join department dep
 on dep_list.dep_id = dep.id

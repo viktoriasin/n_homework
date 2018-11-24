@@ -153,3 +153,57 @@ on t.trip_no = p.trip_no join passenger ps on p.id_psg = ps.id_psg
 group by p.id_psg, name
 having count(distinct id_comp) = 1)
 ) z;
+
+--8
+ /*
+ Для каждой компании, перевозившей пассажиров, подсчитать время, которое провели в полете самолеты с пассажирами. 
+Вывод: название компании, время в минутах.
+*/
+with trip_t as (
+select p.trip_no, t.id_comp, extract(HOUR from time_out) * 60  + extract(MINUTE from time_out) time_dep,
+extract(HOUR from time_in) * 60  + extract(MINUTE from time_in) time_arr
+from trip t 
+join pass_in_trip p
+on t.trip_no = p.trip_no
+GROUP BY t.trip_no,p.trip_no, date, time_out, time_in
+)
+select c.name,  sum(CASE 
+ WHEN time_dep >= time_arr 
+ THEN time_arr - time_dep + 1440 
+ ELSE time_arr - time_dep 
+ END  ) tm
+ from trip_t t
+ join company c
+ on t.id_comp = c.id_comp
+ group by t.id_comp, c.name;
+
+
+--9
+/*
+Среди пассажиров, которые пользовались услугами не менее двух авиакомпаний, найти тех, кто совершил одинаковое количество полётов самолетами каждой из этих авиакомпаний. Вывести имена таких пассажиров.
+*/
+with pass as (
+Select p.id_psg from pass_in_trip p 
+join trip t
+on p.trip_no = t.trip_no
+group by p.id_psg
+having count(distinct id_comp) >= 2)
+, cnt_comp as (
+select p.id_psg, t.id_comp, count(*) cnt
+from pass_in_trip p
+join pass s
+on s.id_psg = p.id_psg
+join trip t 
+on p.trip_no = t.trip_no
+group by p.id_psg, t.id_comp
+)
+select name from (
+select id_psg, cnt
+from cnt_comp
+group by id_psg, cnt
+) idp
+join passenger r
+on r.id_psg = idp.id_psg
+group by idp.id_psg, r.name
+having count(*) = 1
+

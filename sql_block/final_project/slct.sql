@@ -1,27 +1,14 @@
 --1
 
-/*По таблицам Income и Outcome для каждого пункта приема найти остатки денежных средств на конец каждого дня, 
-в который выполнялись операции по приходу и/или расходу на данном пункте.
-Учесть при этом, что деньги не изымаются, а остатки/задолженность переходят на следующий день.
-Вывод: пункт приема, день в формате "dd/mm/yyyy", остатки/задолженность на конец этого дня.
+/*
+Вывести id, текущую, предыдущую, следующую дату полета пассажира.
 */
 
-with src as (select coalesce(inc.point, out.point) point, coalesce(inc.date,out.date) date,
-sum_inc, sum_out, coalesce(sum_inc,0)- coalesce(sum_out,0) rst
-from (
-select i.point, i.date, sum(inc) sum_inc from income i
-group by i.point, i.date
-) inc
-full outer join
-(
-select o.point, o.date, sum(out) sum_out from outcome o
-group by o.point, o.date
-)  out
-on out.point = inc.point and out.date=inc.date
-)
-select  point, to_char(date,  'DD/MM/YYYY') ,  (select sum(rst) from src s2 where s1.point = s2.point and s2.date <= s1.date group by s2.point) from
-src s1
-order by point, date;
+Select id_psg,
+TO_CHAR(DATE,'Day, DD MONTH YYYY') cur_date,
+coalesce(to_char(lag(date) over(partition by id_psg order by date),'Day,DD MONTH YYYY'),'this is the first trip') prev_date,
+coalesce(to_char(lead(date) over(partition by id_psg order by date),'Day, DD MONTH YYYY'), 'this is the last trip by now') date_next 
+from pass_in_trip;
 
 --2
 /*
@@ -205,5 +192,44 @@ group by id_psg, cnt
 join passenger r
 on r.id_psg = idp.id_psg
 group by idp.id_psg, r.name
-having count(*) = 1
+having count(*) = 1;
 
+
+--10
+/*
+Для последовательности пассажиров, упорядоченных по id_psg, определить того, 
+кто совершил наибольшее число полетов, а также тех, кто находится в последовательности непосредственно перед и после него.
+Для первого пассажира в последовательности предыдущим будет последний, а для последнего пассажира последующим будет первый.
+Для каждого пассажира, отвечающего условию, вывести: имя, имя предыдущего пассажира, имя следующего пассажира. 
+*/
+with init as (
+select coalesce(d.id_psg,p.id_psg) id_psg, name, coalesce(cnt,0) cnt 
+from passenger p left join (
+select id_psg, count(id_comp) cnt from pass_in_trip p join trip t on p.trip_no = t.trip_no
+group by id_psg) d
+on p.id_psg = d.id_psg
+)
+, init_main_pas as (
+select init.id_psg,p.name, cnt, lag(init.id_psg) over(order by init.id_psg) p1_id,
+lead(init.id_psg) over(order by init.id_psg) p2_id
+from init
+join passenger p
+on init.id_psg = p.id_psg)
+, names as 
+(
+select f.name name_f,l.name name_l from
+(select name from (select name, row_number() over(order by id_psg) rnk from passenger) z where rnk =1 ) f ,
+(select name from (select name, row_number() over(order by id_psg desc) rnk from passenger) z where rnk =1 ) l
+)
+, init_main_next as (
+select i.id_psg, cnt, i.name psg, coalesce(p1.name,n.name_l) f_name , coalesce(p2.name,n.name_f) l_name
+from init_main_pas i
+left join passenger p1
+on p1.id_psg = i.p1_id
+left join passenger p2
+on p2.id_psg = i.p2_id
+join names n on 1 = 1
+)
+select psg, f_name prev, l_name nxt from (
+select psg, f_name, l_name,rank() over(order by cnt desc) rnk from init_main_next) ii
+where rnk = 1;

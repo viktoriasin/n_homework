@@ -24,5 +24,5 @@ def test_fib_sum():
     assert fib_sum(1) == 1
 
 def test_make_dict():
-    assert make_dict( ['2018-01-01', 'yandex', 'cpc', 100, 200, 300, 'kkk', 'sdfsdf']) == {'2018-01-01': {'yandex': {'cpc': 100}}}
-    assert make_dict( ['2018-01-01', 'yandex', 'cpc', 100, 200, 300, 'kkk', 'sdfsdf',23424,234234,'sddfsdgf','sdfsdf']) == {'2018-01-01': {'yandex': {'cpc': {100: {200: {300: {'kkk': 'sdfsdf'}}}}}}}
+    assert make_dict( ['2018-01-01', 'yandex', 'cpc', 100]) == {'2018-01-01': {'yandex': {'cpc': 100}}}
+    assert make_dict( ['2018-01-01', 'yandex', 'cpc', 100, 200, 300, 'kkk', 'sdfsdf',23424,234234,'sddfsdgf','sdfsdf']) == {'2018-01-01': {'yandex': {'cpc': {100: {200: {300: {'kkk': {'sdfsdf': {23424: {234234: {'sddfsdgf': 'sdfsdf'}}}}}}}}}}}

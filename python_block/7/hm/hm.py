@@ -99,7 +99,7 @@ top_rated_query = session.query(MoviesTop).filter(MoviesTop.ratings_num > 15).fi
 logger.info("Выборка из top_rated_query\n{}".format([i for i in top_rated_query.limit(4)]))
 
 top_rated_content_ids = [
-    i[0] for i in top_rated_query.values(MoviesTop.movieid)
+    str(i[0]) for i in top_rated_query.values(MoviesTop.movieid)
 ][:5]
 # --------------------------------------------------------------
 # Задание по PyMongo
@@ -115,7 +115,7 @@ tags_collection = db['tags']
 # id контента используйте для фильтрации - передайте его в модификатор $in внутри find
 # в выборку должны попать теги фильмов из массива top_rated_content_ids
 mongo_query = tags_collection.find(
-        {'id': { "$in" : top_rated_content_ids}}
+        {'movieId': { "$in" : top_rated_content_ids}}
 )
 mongo_docs = [
     i for i in mongo_query
@@ -145,4 +145,4 @@ top_5_tags = tags_df.head(5)
 print(top_5_tags)
 
 logger.info("Домашка выполнена!")
-# --------------------------------------------------------------
+# -------------------------------------------------------------

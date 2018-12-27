@@ -45,7 +45,7 @@ SELECT *  INTO movies_top FROM (
     FROM RATINGS
     GROUP BY MOVIEID
     HAVING AVG(RATING) > %(MIN_USERS_RATING_FOR_ITEM)d
-)
+) s
 """ % user_item_query_config
 )
 
@@ -115,7 +115,7 @@ tags_collection = db['tags']
 # id контента используйте для фильтрации - передайте его в модификатор $in внутри find
 # в выборку должны попать теги фильмов из массива top_rated_content_ids
 mongo_query = tags_collection.find(
-        {'id': { $in : top_rated_content_ids}}
+        {'id': { "$in" : top_rated_content_ids}}
 )
 mongo_docs = [
     i for i in mongo_query
@@ -138,7 +138,7 @@ tags_df = pd.DataFrame(id_tags, columns=['movieid', 'tags'])
 # сгруппируйте по названию тега с помощью group_by
 # для каждого тега вычислите, в каком количестве фильмов он встречается
 # оставьте top-5 самых популярных тегов
-top_5_tags = tags_df.groupby(['tags']).count().sort_values(ascending=False)
+top_5_tags = tags_df.groupby(by=['tags'])['movieid'].count().sort_values(ascending=False)
 
 top_5_tags = tags_df.head(5)
 

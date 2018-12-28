@@ -123,7 +123,7 @@ mongo_docs = [
 
 print("Достали документы из Mongo: {}".format(mongo_docs[:5]))
 
-id_tags = [(i['id'], i['name']) for i in mongo_docs]
+id_tags = [(i['movieId'], i['name']) for i in mongo_docs]
 
 
 # Задание по Pandas

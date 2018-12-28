@@ -140,7 +140,7 @@ tags_df = pd.DataFrame(id_tags, columns=['movieid', 'tags'])
 # оставьте top-5 самых популярных тегов
 top_5_tags = tags_df.groupby(by=['tags'])['movieid'].count().sort_values(ascending=False)
 
-top_5_tags = tags_df.head(5)
+top_5_tags = top_5_tags.head(5)
 
 print(top_5_tags)
 

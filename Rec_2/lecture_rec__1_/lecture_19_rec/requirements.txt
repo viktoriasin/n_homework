@@ -1,0 +1,5 @@
+pandas
+numpy
+surprise
+fastFM
+git+git://github.com/scikit-learn/scikit-learn.git

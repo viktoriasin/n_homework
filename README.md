@@ -1,3 +1,3 @@
 # n_homework
 
-Homework to data science online course
+Homework to  data science online course by Netology
